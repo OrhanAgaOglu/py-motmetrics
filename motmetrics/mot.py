@@ -172,6 +172,7 @@ class MOTAccumulator(object):
         EURASIP Journal on Image and Video Processing 2008.1 (2008): 1-10.
         """
         # pylint: disable=too-many-locals, too-many-statements
+        color_map=[]
 
         self.dirty_events = True
         oids = np.asarray(oids)
@@ -242,6 +243,7 @@ class MOTAccumulator(object):
 
                     self._append_to_indices(frameid, next(eid))
                     self._append_to_events('MATCH', oids[i], hids[j], dists[i, j])
+                    color_map.append("green")
                     self.last_match[o] = frameid
                     self.hypHistory[h] = frameid
 
@@ -266,6 +268,7 @@ class MOTAccumulator(object):
                         subcat = 'ASCEND'
                         self._append_to_indices(frameid, next(eid))
                         self._append_to_events(subcat, oids[i], hids[j], dists[i, j])
+                        color_map.append("yellow")
                 # ignore the last condition temporarily
                 is_transfer = (h in self.res_m and
                                self.res_m[h] != o)
@@ -298,6 +301,7 @@ class MOTAccumulator(object):
         for o in oids[~oids_masked]:
             self._append_to_indices(frameid, next(eid))
             self._append_to_events('MISS', o, np.nan, np.nan)
+            color_map.append("red")
             if vf != '':
                 vf.write('FN %d %d\n' % (frameid, o))
 
@@ -305,13 +309,14 @@ class MOTAccumulator(object):
         for h in hids[~hids_masked]:
             self._append_to_indices(frameid, next(eid))
             self._append_to_events('FP', np.nan, h, np.nan)
+            color_map.append("blue")
             if vf != '':
                 vf.write('FP %d %d\n' % (frameid, h))
 
         # 5. Update occurance state
         for o in oids:
             self.last_occurrence[o] = frameid
-
+        print(color_map)
         return frameid
 
     @property
